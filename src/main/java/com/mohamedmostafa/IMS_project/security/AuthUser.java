@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -18,8 +19,7 @@ public class AuthUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        //TODO  will be added later
-        return List.of();
+        return List.of(new SimpleGrantedAuthority(user.getRole().name()));
     }
 
     @Override
