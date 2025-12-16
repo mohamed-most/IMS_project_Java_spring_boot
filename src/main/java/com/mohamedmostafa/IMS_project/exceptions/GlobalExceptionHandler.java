@@ -18,4 +18,13 @@ public class GlobalExceptionHandler {
                 .build();
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Response> notFoundHandler(NotFoundException notFoundException) {
+        Response response = Response.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .message(notFoundException.getMessage())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
 }
