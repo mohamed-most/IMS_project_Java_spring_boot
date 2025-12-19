@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,16 +23,46 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
-        return httpSecurity.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(
-                        req -> req.requestMatchers("/api/v1/auth/**")
-                                .permitAll()
-                                .anyRequest().authenticated()
-                ).sessionManagement(manager -> manager
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class).build();
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                // Disable CSRF for APIs
+                .csrf(csrf -> csrf.disable())
+
+                // Define endpoint access rules
+                .authorizeHttpRequests(auth -> auth
+                        // Public endpoints (login, register)
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+
+                        // Users endpoints
+                        .requestMatchers("/api/v1/users/all").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/{id}").hasAnyAuthority("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/users/{id}").hasAnyAuthority("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/users/{id}").hasAuthority("ADMIN")
+                        .requestMatchers("/api/v1/users/transactions/{userId}").hasAnyAuthority("ADMIN", "MANAGER")
+                        .requestMatchers("/api/v1/users/transactions/me").hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
+                        .requestMatchers("/api/v1/users/me").hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
+
+                        // Products endpoints
+                        .requestMatchers("/api/v1/products/**").hasAnyAuthority("ADMIN", "MANAGER", "STAFF")
+                        // Suppliers and Categories (example)
+                        .requestMatchers("/api/v1/suppliers/**").hasAnyAuthority("ADMIN", "MANAGER")
+                        .requestMatchers("/api/v1/categories/**").hasAnyAuthority("ADMIN", "MANAGER")
+
+                        // All other endpoints must be authenticated
+                        .anyRequest().authenticated()
+                )
+
+                // Stateless session (JWT)
+                .sessionManagement(manager -> manager
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+
+                // Add JWT filter before Spring Security authentication filter
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+
+                .build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

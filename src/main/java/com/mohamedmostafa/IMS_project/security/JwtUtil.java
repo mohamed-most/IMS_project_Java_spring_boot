@@ -37,7 +37,7 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secretJwt.getBytes());
     }
 
-    private Claims getClaims(String token) {
+    public Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith((SecretKey) getSigningKey())
                 .build()
