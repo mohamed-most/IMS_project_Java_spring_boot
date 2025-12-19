@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Response> globalHandler(Exception exception) {
-        Response response = Response.builder()
+    public ResponseEntity<Response<String>> globalHandler(Exception exception) {
+        Response<String> response = Response.<String>builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .message(exception.getMessage())
                 .build();
@@ -20,8 +20,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Response> notFoundHandler(NotFoundException notFoundException) {
-        Response response = Response.builder()
+    public ResponseEntity<Response<String>> notFoundHandler(NotFoundException notFoundException) {
+        Response<String> response = Response.<String>builder()
                 .status(HttpStatus.NOT_FOUND.value())
                 .message(notFoundException.getMessage())
                 .build();

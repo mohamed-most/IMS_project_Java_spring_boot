@@ -2,42 +2,39 @@ package com.mohamedmostafa.IMS_project.dtos;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.mohamedmostafa.IMS_project.enums.UserRole;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Data
+@Getter
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Response {
+@JsonPropertyOrder({"status", "message", "data", "timestamp"}) // set order
+public class Response<T> {
 
+    @Builder.Default
     private final LocalDateTime timestamp = LocalDateTime.now();
-    //Generic
-    private int status;
-    private String message;
 
-    //for login
-    private String token;
-    private UserRole role;
-    private String expirationTime;
+    private final int status;
+    private final String message;
+    private final T data;
 
-    //for pagination
-    private Integer totalPages;
-    private Long totalElements;
-    //data output optionals
-    private UserDto user;
-    private List<UserDto> users;
-    //    private SupplierDto supplier;
-//    private List<SupplierDTO> suppliers;
-    private CategoryDto category;
-    private List<CategoryDto> categories;
-    private ProductDto product;
-    private List<ProductDto> products;
-//    private TransactionDTO transaction;
-//    private List<TransactionDTO> transactions;
+    public static <T> Response<T> success(String message, T data) {
+        return Response.<T>builder()
+                .status(HttpStatus.OK.value())
+                .message(message)
+                .data(data)
+                .build();
+    }
 
+    public static <T> Response<T> error(HttpStatus status, String message) {
+        return Response.<T>builder()
+                .status(status.value())
+                .message(message)
+                .build();
+    }
 
 }

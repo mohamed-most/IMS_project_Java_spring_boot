@@ -1,18 +1,19 @@
 package com.mohamedmostafa.IMS_project.services.impl;
 
 
-import com.mohamedmostafa.IMS_project.dtos.LoginRequestDto;
-import com.mohamedmostafa.IMS_project.dtos.Response;
-import com.mohamedmostafa.IMS_project.dtos.SignUpRequestDto;
+import com.mohamedmostafa.IMS_project.dtos.request.LoginRequestDto;
+import com.mohamedmostafa.IMS_project.dtos.request.SignUpRequestDto;
+import com.mohamedmostafa.IMS_project.dtos.response.LoginResponseDto;
+import com.mohamedmostafa.IMS_project.dtos.response.SignUpResponseDto;
 import com.mohamedmostafa.IMS_project.exceptions.InvalidCredentialsException;
 import com.mohamedmostafa.IMS_project.exceptions.NotFoundException;
+import com.mohamedmostafa.IMS_project.mappers.AuthMapper;
 import com.mohamedmostafa.IMS_project.models.User;
 import com.mohamedmostafa.IMS_project.repos.UserRepository;
 import com.mohamedmostafa.IMS_project.security.JwtUtil;
 import com.mohamedmostafa.IMS_project.services.AuthService;
 import lombok.Data;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,13 +25,14 @@ public class AuthServiceImp implements AuthService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
+
     /**
      *
      * @param loginRequestDto
-     * @return Response
+     * @return Response<LoginResponseDto>
      */
     @Override
-    public Response login(LoginRequestDto loginRequestDto) {
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
         // load user from database
         User user = userRepository.findByEmail(loginRequestDto.getEmail())
                 .orElseThrow(() -> new NotFoundException("User's Email Not Found "));
@@ -44,11 +46,10 @@ public class AuthServiceImp implements AuthService {
         String token = jwtUtil.generateToken(loginRequestDto.getEmail());
 
         //build response
-        return Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("User Logged In successfully")
+        return LoginResponseDto.builder()
+                .email(user.getEmail())
                 .token(token)
-                .role(user.getRole())
+                .expiresAt(jwtUtil.extractExpiration(token))
                 .build();
     }
 
@@ -59,23 +60,16 @@ public class AuthServiceImp implements AuthService {
      * @return Response
      */
     @Override
-    public Response signUp(SignUpRequestDto signUpRequestDto) {
+    public SignUpResponseDto signUp(SignUpRequestDto signUpRequestDto) {
         //build User Object from request
-        User user = User.builder()
-                .name(signUpRequestDto.getName())
-                .email(signUpRequestDto.getEmail())
-                .password(passwordEncoder.encode(signUpRequestDto.getPassword()))
-                .phoneNumber(signUpRequestDto.getPhoneNumber())
-                .role(signUpRequestDto.getRole())
-                .build();
-
+        User user = AuthMapper.toUser(signUpRequestDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         //store user in database
         User savedUser = userRepository.save(user);
 
         //build response
-        return Response.builder()
-                .status(HttpStatus.OK.value())
-                .message("User Created Successfully ")
+        return SignUpResponseDto.builder()
+                .email(user.getEmail())
                 .build();
     }
 }

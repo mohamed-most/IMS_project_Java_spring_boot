@@ -1,9 +1,11 @@
 package com.mohamedmostafa.IMS_project.controllers;
 
 
-import com.mohamedmostafa.IMS_project.dtos.LoginRequestDto;
 import com.mohamedmostafa.IMS_project.dtos.Response;
-import com.mohamedmostafa.IMS_project.dtos.SignUpRequestDto;
+import com.mohamedmostafa.IMS_project.dtos.request.LoginRequestDto;
+import com.mohamedmostafa.IMS_project.dtos.request.SignUpRequestDto;
+import com.mohamedmostafa.IMS_project.dtos.response.LoginResponseDto;
+import com.mohamedmostafa.IMS_project.dtos.response.SignUpResponseDto;
 import com.mohamedmostafa.IMS_project.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +24,14 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<Response> loginApi(@RequestBody @Valid LoginRequestDto loginRequestDto) {
-        return new ResponseEntity<>(authService.login(loginRequestDto), HttpStatus.OK);
+    public ResponseEntity<Response<LoginResponseDto>> loginApi(@RequestBody @Valid LoginRequestDto loginRequestDto) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Response.success("User Logged In successfully ", authService.login(loginRequestDto)));
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Response> signUpApi(@RequestBody @Valid SignUpRequestDto signUpRequestDto) {
-        return new ResponseEntity<>(authService.signUp(signUpRequestDto), HttpStatus.OK);
+    public ResponseEntity<Response<SignUpResponseDto>> signUpApi(@RequestBody @Valid SignUpRequestDto signUpRequestDto) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Response.success("User SignUp successfully ", authService.signUp(signUpRequestDto)));
     }
 }
