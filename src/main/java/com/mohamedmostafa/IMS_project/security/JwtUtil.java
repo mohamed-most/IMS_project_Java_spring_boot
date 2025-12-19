@@ -15,7 +15,8 @@ import java.util.Date;
 @Service
 public class JwtUtil {
 
-    private static final long EXPIRATION_OF_TOKEN = 1000L * 60L * 60L * 24L * 30L; //expires in one month
+    @Value("${jwtExp}")
+    private long EXPIRATION_OF_TOKEN; //expires in one month
     @Value("${secretJwt}")
     private String secretJwt;
 

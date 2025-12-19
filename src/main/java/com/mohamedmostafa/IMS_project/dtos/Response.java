@@ -2,10 +2,12 @@ package com.mohamedmostafa.IMS_project.dtos;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.mohamedmostafa.IMS_project.enums.UserRole;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -19,21 +21,21 @@ public class Response {
 
     //for login
     private String token;
-    //    private UserRole role;
+    private UserRole role;
     private String expirationTime;
 
     //for pagination
     private Integer totalPages;
     private Long totalElements;
     //data output optionals
-//    private UserDTO user;
-//    private List<UserDTO> users;
-//    private SupplierDTO supplier;
+    private UserDto user;
+    private List<UserDto> users;
+    //    private SupplierDto supplier;
 //    private List<SupplierDTO> suppliers;
-//    private CategoryDTO category;
-//    private List<CategoryDTO> categories;
-//    private ProductDTO product;
-//    private List<ProductDTO> products;
+    private CategoryDto category;
+    private List<CategoryDto> categories;
+    private ProductDto product;
+    private List<ProductDto> products;
 //    private TransactionDTO transaction;
 //    private List<TransactionDTO> transactions;
 

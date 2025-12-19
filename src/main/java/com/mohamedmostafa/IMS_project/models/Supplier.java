@@ -2,14 +2,16 @@ package com.mohamedmostafa.IMS_project.models;
 
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -20,8 +22,7 @@ import lombok.NoArgsConstructor;
 public class Supplier {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    private String id;
 
 
     @NotBlank(message = "Name is required ....")
@@ -29,4 +30,9 @@ public class Supplier {
 
 
     private String address;
+
+    @PrePersist
+    private void setId() {
+        if (id == null) this.id = UUID.randomUUID().toString();
+    }
 }
